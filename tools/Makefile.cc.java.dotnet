@@ -9,7 +9,11 @@ endif
 INC_DIR = include
 EX_DIR = examples
 CPP_EX_DIR = examples/cpp
-CS_EX_DIR = examples$Scsharp
+CPP_EX_PATH = $(subst /,$S,$(CPP_EX_DIR))
+JAVA_EX_DIR = examples/java
+JAVA_EX_PATH = $(subst /,$S,$(JAVA_EX_DIR))
+DOTNET_EX_DIR = examples/dotnet
+DOTNET_EX_PATH = $(subst /,$S,$(DOTNET_EX_DIR))
 OBJ_DIR = objs
 LIB_DIR = lib
 BIN_DIR = bin
@@ -208,29 +212,29 @@ cc test_cc ccc rcc:
 else
 cc: $(EXE)
 
-test_cc: cc
+test_cc: detect_cc $(BIN_DIR)/golomb$E $(BIN_DIR)/cvrptw$E
 	$(BIN_DIR)$Sgolomb$E
 	$(BIN_DIR)$Scvrptw$E
 
 # C++ generic running command
-  ifeq ($(EX),)
-  ccc rcc:
-  	@echo No C++ file was provided, the $@ target must be used like so: \
-  	make $@ EX=examples/cpp/example.cc
-  else # ifeq ($(EX),)
-  ccc: $(BIN_DIR)$S$(basename $(notdir $(EX)))$E
+ifeq ($(EX),)
+ccc rcc:
+	@echo No C++ file was provided, the $@ target must be used like so: \
+	make $@ EX=examples/cpp/example.cc
+else # ifeq ($(EX),)
+ccc: $(BIN_DIR)/$(basename $(notdir $(EX)))$E
 
-  rcc: $(BIN_DIR)$S$(basename $(notdir $(EX)))$E
-  	@echo running $(BIN_DIR)$S$(basename $(notdir $(EX)))$E
-  	$(BIN_DIR)$S$(basename $(notdir $(EX)))$E $(ARGS)
-  endif # ifeq ($(EX),)
-endif # ifeq ($(CXX_BIN),)
+rcc: $(BIN_DIR)/$(basename $(notdir $(EX)))$E
+	@echo running $<
+	$(BIN_DIR)$S$(basename $(notdir $(EX)))$E $(ARGS)
+endif # ifeq ($(EX),)
+endif # ifndef CXX_BIN
 
 $(OBJ_DIR):
 	$(MKDIR) $(OBJ_DIR)
 
 $(OBJ_DIR)/%$O: $(CPP_EX_DIR)/%.cc | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $(CPP_EX_DIR)$S$*.cc $(OBJ_OUT)$(OBJ_DIR)$S$*$O
+	$(CXX) $(CXXFLAGS) -c $(CPP_EX_PATH)$S$*.cc $(OBJ_OUT)$(OBJ_DIR)$S$*$O
 
 $(BIN_DIR)/%$E: $(OBJ_DIR)/%$O
 	$(CXX) $(CXXFLAGS) $(OBJ_DIR)$S$*$O $(OR_TOOLS_LNK) $(LDFLAGS) $(EXE_OUT)$(BIN_DIR)$S$*$E
@@ -275,6 +279,9 @@ endif
 ############
 ##  JAVA  ##
 ############
+JAR = \
+$(OBJ_DIR)/tsp.jar
+
 HAS_JAVA = true
 ifndef JAVA_BIN
 HAS_JAVA =
@@ -284,46 +291,36 @@ HAS_JAVA =
 endif
 
 ifndef HAS_JAVA
-test_java rjava cjava:
+java test_java rjava cjava:
 	@echo the java or javac command was not found in your PATH
 else
-test_java:
-	$(JAVAC_BIN) -d $(OBJ_DIR) -cp $(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
- $(EX_DIR)$Scom$Sgoogle$Sortools$Ssamples$STsp.java
-	$(JAVA_BIN) $(JAVAFLAGS) -cp $(OBJ_DIR)$(CPSEP)$(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
- com.google.ortools.samples.Tsp $(ARGS)
-	@echo javac = $(JAVAC_BIN)
-	@echo java = $(JAVA_BIN)
+java: $(JAR)
 
-  # Java generic compilation command.
-  ifeq ($(EX),)
-  rjava cjava:
-  	@echo No java file was provided, the rjava target must be used like so: \
-  	make rjava EX=path/to/the/example/example.java
-  else
-      ifeq ($(SYSTEM),win)
-        EX_read_package = $(shell findstr /r "^package.*\;" $(EX))
-      else
-        EX_read_package = $(shell grep '^package.*\;' $(EX))
-      endif
-      EX_name = $(basename $(notdir $(EX)))
-      EX_package = $(subst ;,,$(subst package ,,$(EX_read_package)))
-      ifeq ($(EX_read_package),)
-        EX_class_file = $(OBJ_DIR)$S$(EX_name).class
-        EX_class = $(EX_name)
-      else
-      EX_class_file = $(OBJ_DIR)$S$(subst .,$S,$(EX_package))$S$(EX_name).class
-      EX_class = $(EX_package).$(EX_name)
-      endif
-  $(EX_class_file): $(LIB_DIR)$Scom.google.ortools.jar $(LIB_DIR)$Sprotobuf.jar  $(EX)
-  	$(JAVAC_BIN) -d $(OBJ_DIR) -cp $(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar $(EX)
+test_java: detect_java $(OBJ_DIR)/tsp.jar
+	$(JAVA_BIN) $(JAVAFLAGS) \
+ -cp $(OBJ_DIR)$(CPSEP)$(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
+ com.google.ortools.samples.Tsp
 
-  cjava: $(EX_class_file)
+# Java generic compilation command.
+ifeq ($(EX),)
+rjava cjava:
+	@echo No java file was provided, the rjava target must be used like so: \
+	make rjava EX=examples/java/example.java
+else # ifeq ($(EX),)
+cjava: $(OBJ_DIR)/$(basename $(notdir $(EX))).jar
 
-  rjava: $(EX_class_file)
-  	$(JAVA_BIN) -Djava.library.path=$(LIB_DIR) -cp $(OBJ_DIR)$(CPSEP)$(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar $(EX_class) $(ARGS)
-  endif
-endif
+rjava: $(OBJ_DIR)/$(basename $(notdir $(EX))).jar
+	@echo running $<
+	$(JAVA_BIN) $(JAVAFLAGS) \
+ -cp $(OBJ_DIR)$(CPSEP)$(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
+ $(OBJ_DIR)$S$(basename $(notdir $(EX))).jar $(ARGS)
+endif # ifeq ($(EX),)
+endif # ifndef HAS_JAVA
+
+$(OBJ_DIR)/%.jar: $(JAVA_EX_DIR)/%.java | $(OBJ_DIR)
+	$(JAVAC_BIN) -d $(OBJ_DIR) \
+ -cp $(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
+ $(JAVA_EX_PATH)$S$*.java
 
 .PHONY: detect_java
 detect_java:
@@ -343,9 +340,9 @@ ifndef DOTNET_BIN
 test_dotnet:
 	@echo the $(DOTNET) command was not found in your PATH
 else
-test_dotnet:
+test_dotnet: detect_dotnet
 	$(CSC_BIN) /target:exe /out:$(BIN_DIR)$Scsflow.exe /platform:$(NETPLATFORM) /lib:$(BIN_DIR) /r:Google.OrTools.dll /r:Google.Protobuf.dll $(CS_EX_DIR)$Scsflow.cs
-	$(MONO) $(BIN_DIR)$Scsflow.exe $(ARGS)
+	$(DOTNET_BIN) run $(BIN_DIR)$Scsflow.dll
 
 ifeq ($(EX),)
 rcs:
