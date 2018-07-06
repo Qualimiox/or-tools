@@ -280,7 +280,59 @@ endif
 ##  JAVA  ##
 ############
 JAR = \
-$(OBJ_DIR)/tsp.jar
+$(OBJ_DIR)/AllDifferentExcept0.class \
+$(OBJ_DIR)/AllInterval.class \
+$(OBJ_DIR)/CapacitatedVehicleRoutingProblemWithTimeWindows.class \
+$(OBJ_DIR)/Circuit.class \
+$(OBJ_DIR)/CoinsGrid.class \
+$(OBJ_DIR)/CoinsGridMIP.class \
+$(OBJ_DIR)/ColoringMIP.class \
+$(OBJ_DIR)/CoveringOpl.class \
+$(OBJ_DIR)/Crossword.class \
+$(OBJ_DIR)/DeBruijn.class \
+$(OBJ_DIR)/Diet.class \
+$(OBJ_DIR)/DietMIP.class \
+$(OBJ_DIR)/DivisibleBy9Through1.class \
+$(OBJ_DIR)/FlowExample.class \
+$(OBJ_DIR)/GolombRuler.class \
+$(OBJ_DIR)/IntegerProgramming.class \
+$(OBJ_DIR)/Issue173.class \
+$(OBJ_DIR)/Knapsack.class \
+$(OBJ_DIR)/KnapsackMIP.class \
+$(OBJ_DIR)/LeastDiff.class \
+$(OBJ_DIR)/LinearAssignmentAPI.class \
+$(OBJ_DIR)/LinearProgramming.class \
+$(OBJ_DIR)/LsApi.class \
+$(OBJ_DIR)/MagicSquare.class \
+$(OBJ_DIR)/Map2.class \
+$(OBJ_DIR)/Map.class \
+$(OBJ_DIR)/Minesweeper.class \
+$(OBJ_DIR)/MultiThreadTest.class \
+$(OBJ_DIR)/NQueens2.class \
+$(OBJ_DIR)/NQueens.class \
+$(OBJ_DIR)/Partition.class \
+$(OBJ_DIR)/QuasigroupCompletion.class \
+$(OBJ_DIR)/RabbitsPheasants.class \
+$(OBJ_DIR)/SendMoreMoney2.class \
+$(OBJ_DIR)/SendMoreMoney.class \
+$(OBJ_DIR)/SendMostMoney.class \
+$(OBJ_DIR)/Seseman.class \
+$(OBJ_DIR)/SetCovering2.class \
+$(OBJ_DIR)/SetCovering3.class \
+$(OBJ_DIR)/SetCovering4.class \
+$(OBJ_DIR)/SetCoveringDeployment.class \
+$(OBJ_DIR)/SetCovering.class \
+$(OBJ_DIR)/SimpleRoutingTest.class \
+$(OBJ_DIR)/StableMarriage.class \
+$(OBJ_DIR)/StiglerMIP.class \
+$(OBJ_DIR)/Strimko2.class \
+$(OBJ_DIR)/Sudoku.class \
+$(OBJ_DIR)/SurvoPuzzle.class \
+$(OBJ_DIR)/ToNum.class \
+$(OBJ_DIR)/Tsp.class \
+$(OBJ_DIR)/WhoKilledAgatha.class \
+$(OBJ_DIR)/Xkcd.class \
+$(OBJ_DIR)/YoungTableaux.class
 
 HAS_JAVA = true
 ifndef JAVA_BIN
@@ -296,10 +348,10 @@ java test_java rjava cjava:
 else
 java: $(JAR)
 
-test_java: detect_java $(OBJ_DIR)/tsp.jar
+test_java: detect_java $(OBJ_DIR)/Tsp.class
 	$(JAVA_BIN) $(JAVAFLAGS) \
  -cp $(OBJ_DIR)$(CPSEP)$(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
- com.google.ortools.samples.Tsp
+ Tsp
 
 # Java generic compilation command.
 ifeq ($(EX),)
@@ -307,17 +359,17 @@ rjava cjava:
 	@echo No java file was provided, the rjava target must be used like so: \
 	make rjava EX=examples/java/example.java
 else # ifeq ($(EX),)
-cjava: $(OBJ_DIR)/$(basename $(notdir $(EX))).jar
+cjava: $(OBJ_DIR)/$(basename $(notdir $(EX))).class
 
-rjava: $(OBJ_DIR)/$(basename $(notdir $(EX))).jar
+rjava: $(OBJ_DIR)/$(basename $(notdir $(EX))).class
 	@echo running $<
 	$(JAVA_BIN) $(JAVAFLAGS) \
  -cp $(OBJ_DIR)$(CPSEP)$(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
- $(OBJ_DIR)$S$(basename $(notdir $(EX))).jar $(ARGS)
+ $(basename $(notdir $(EX))) $(ARGS)
 endif # ifeq ($(EX),)
 endif # ifndef HAS_JAVA
 
-$(OBJ_DIR)/%.jar: $(JAVA_EX_DIR)/%.java | $(OBJ_DIR)
+$(OBJ_DIR)/%.class: $(JAVA_EX_DIR)/%.java | $(OBJ_DIR)
 	$(JAVAC_BIN) -d $(OBJ_DIR) \
  -cp $(LIB_DIR)$Scom.google.ortools.jar$(CPSEP)$(LIB_DIR)$Sprotobuf.jar \
  $(JAVA_EX_PATH)$S$*.java

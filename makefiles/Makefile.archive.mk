@@ -85,7 +85,7 @@ archive_java: java | $(TEMP_ARCHIVE_DIR)
 	$(COPY) lib$S*.jar $(TEMP_ARCHIVE_DIR)$S$(INSTALL_DIR)$Slib
 	$(COPY) lib$S$(LIB_PREFIX)jni*.$(JNI_LIB_EXT) $(TEMP_ARCHIVE_DIR)$S$(INSTALL_DIR)$Slib
 	$(MKDIR_P) $(TEMP_ARCHIVE_DIR)$S$(INSTALL_DIR)$Sexamples
-	$(COPYREC) examples$Scom $(TEMP_ARCHIVE_DIR)$S$(INSTALL_DIR)$Sexamples
+	$(COPYREC) examples$Sjava $(TEMP_ARCHIVE_DIR)$S$(INSTALL_DIR)$Sexamples
 
 $(FZ_INSTALL_DIR)$(ARCHIVE_EXT): fz | $(TEMP_FZ_DIR)
 	$(MAKE) install_cc prefix=$(TEMP_FZ_DIR)$S$(FZ_INSTALL_DIR)
