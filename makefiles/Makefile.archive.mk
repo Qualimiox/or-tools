@@ -142,6 +142,9 @@ else
 endif
 	-$(DELREC) $(TEMP_DATA_DIR)
 
+###############
+##  TESTING  ##
+###############
 TEMP_TEST_DIR = temp_test
 .PHONY: test_archive
 test_archive: $(INSTALL_DIR)$(ARCHIVE_EXT)
@@ -154,7 +157,7 @@ ifeq ($(SYSTEM),win)
 else
 	$(TAR) -xvf $< -C $(TEMP_TEST_DIR)
 endif
-	( cd $(TEMP_TEST_DIR)$S$(INSTALL_DIR) && $(MAKE) test ) && \
+	( cd $(TEMP_TEST_DIR)$S$(INSTALL_DIR) && $(MAKE) all ) && \
 $(RENAME) lib2 lib && echo "archive test succeeded" || \
 ( $(RENAME) lib2 lib && echo "archive test failed" && exit 1)
 
